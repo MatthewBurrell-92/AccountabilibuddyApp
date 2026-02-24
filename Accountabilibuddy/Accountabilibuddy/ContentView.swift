@@ -20,6 +20,9 @@ struct ContentView: View {
              NavigationLink(destination: ViewAllGoalsView(goals: $goals)) {
                 Text("View All Goals")
              }
+             NavigationLink(destination: ViewAllGoalsView(goals: $goals)) {
+                Text("Record goal progress")
+             }
              
              
 //             .navigationTitle("Home")
@@ -49,6 +52,11 @@ struct ContentView: View {
 //   case custom
 //}
 
+enum GoalType: Codable, Hashable {
+    case binary
+    case quantitative(value: Double, unit: String)
+}
+
 enum GoalUnitTime: String, Codable, CaseIterable {
    case day
    case week
@@ -56,14 +64,70 @@ enum GoalUnitTime: String, Codable, CaseIterable {
    case year
 }
 
-struct Goal: Codable, Identifiable {
+struct Progress: Codable, Identifiable, Hashable {
+   var id: UUID = UUID()
+   var date: Date
+   var value: Double
+}
+
+struct Goal: Codable, Identifiable, Hashable {
    var id: UUID = UUID()
    var name: String
-//   var action: String
-   var value: Double
-   var unit: String
+   var action: String
+//   var value: Double
+//   var unit: String
    var frequency: GoalUnitTime
+   var progress: [Progress]
+   var type: GoalType
 }
+
+extension Goal {
+    var unitString: String? {
+        guard case let .quantitative(_, unit) = type else { return nil }
+        return unit
+    }
+
+    var valueDouble: Double? {
+        guard case let .quantitative(value, _) = type else { return nil }
+        return value
+    }
+}
+
+// two different kinds of goal?
+// binary (make your bed every day)
+// quantifiable (run 3 miles a day)
+// Parent goal with name
+// child binary, child quantifiable
+
+//class GoalClass {
+//   var id: UUID = UUID()
+//   var name: String
+//   var action: String
+//   var frequency: GoalUnitTime
+//   var progress: [Progress]
+//   
+//   init(name: String, action: String, frequency: GoalUnitTime) {
+//      self.name = name
+//      self.action = action
+//      self.frequency = frequency
+//      self.progress = []
+//   }
+//}
+//
+//class BinaryGoal : GoalClass{
+//   
+//}
+//
+//class QuantitativeGoal : GoalClass{
+//   var value: Double
+//   var unit: String
+//   
+//   init(value: Double, unit: String) {
+//      super.init(name: "", action: "", frequency: .day)
+//      self.value = value
+//      self.unit = unit
+//   }
+//}
 
 func loadGoals() throws -> [Goal] {
     let url = FileManager.default
