@@ -31,9 +31,6 @@ struct RecordProgressView: View {
     var body: some View {
        ZStack(alignment: .topLeading) {
 
-          
-             
-          
           VStack {
              Text(goal.name).font(.title)
 //             Text("How many " + goal.unit + " did you " + goal.action + "?")
@@ -51,17 +48,20 @@ struct RecordProgressView: View {
                 else if (goal.frequency == .week)
                 {
                    // total recorded for the week
-                   Text("You have recorded \(calculateWeeklyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateDailyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateWeeklyTotalProgress(goal: goal), specifier: "%.1f") this week.")
                 }
                 else if (goal.frequency == .month)
                 {
                    // total recorded for the month
-                   Text("You have recorded \(calculateMonthlyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateDailyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateMonthlyTotalProgress(goal: goal), specifier: "%.1f") this month.")
                 }
                 else if (goal.frequency == .year)
                 {
                    // total recorded for the year
-                   Text("You have recorded \(calculateYearlyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateDailyTotalProgress(goal: goal), specifier: "%.1f") today.")
+                   Text("You have recorded \(calculateYearlyTotalProgress(goal: goal), specifier: "%.1f") this year.")
                 }
                 let value = goal.valueDouble ?? 0.0
                 if (value < 10.0)
@@ -303,10 +303,10 @@ struct RecordProgressView_PreviewWrapper: View {
         id: UUID(),
         name: "Read BoM",
         action: "read",
-        frequency: .day,
+        frequency: .week,
         progress: [],
-//        type: .quantitative(value: 5.0, unit: "pages")
-        type: .binary
+        type: .quantitative(value: 5.0, unit: "pages")
+//        type: .binary
     )
 
     var body: some View {
