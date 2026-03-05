@@ -8,114 +8,151 @@
 import SwiftUI
 
 struct ViewAllGoalsView: View {
-   @Binding var goals: [Goal]
-   //   @State var goals: [Goal] = []
-   @State var show: Bool = false
-   @State var selectedGoal: Goal?
+   
+   @EnvironmentObject var viewModel: GoalViewModel
+   //   @State var selectedGoal: Goal?
+   @State private var expandedGoalId: UUID? = nil
+   @State var selectedGoalId: UUID = UUID()
+   @State var showRecordProgress: Bool = false
+   
    var body: some View {
       NavigationStack {
          ScrollView {
+            
             VStack(alignment: .leading, spacing: 12) {
-               ForEach(goals) { goal in
+               ForEach(viewModel.goals) { goal in
+                  
                   VStack(alignment: .leading) {
                      
-                     Button(goal.name) {
-                        selectedGoal = goal
-                     }
-                     .font(.headline)
                      
-                     Button("Record Progress") {
-                        selectedGoal = goal
-                     }
-                     
-                     Button("Edit Goal") {
-                        // handle edit
-                     }
-                     
-                     Button("Show Past Progress") {
-                        // handle history
-                     }
-                     
-                     Button("Delete Goal") {
-                        do {
-                           try deleteGoal(withId: goal.id)
-                           goals.removeAll { $0.id == goal.id }
-                        } catch {
-                           print("Failed to delete goal:", error)
+                     // Goal name button
+                     Button(action: {
+                        // Toggle expansion
+                        if expandedGoalId == goal.id {
+                           expandedGoalId = nil
+                        } else {
+                           expandedGoalId = goal.id
                         }
+                     }) {
+                        HStack {
+                           Text(goal.name)
+                              .font(.headline)
+                           Spacer()
+                           Image(systemName: expandedGoalId == goal.id ? "chevron.down" : "chevron.left")
+                              .foregroundColor(.gray)
+                        }
+                        .padding(.vertical, 4)
+                     }
+                     
+                     
+                     // Only show these if this goal is expanded
+                     if expandedGoalId == goal.id {
+                        VStack(alignment: .leading, spacing: 4) {
+                           Button("Record Progress") {
+                              selectedGoalId = goal.id
+                              showRecordProgress = true
+                           }
+                           
+                           Button("Edit Goal") {
+                              // handle edit
+                           }
+                           
+                           Button("Show Past Progress") {
+                              // handle history
+                           }
+                           
+                           Button("Delete Goal") {
+                              viewModel.removeGoal(id: goal.id)
+                           }
+                        }
+                        .padding(.leading, 16)
                      }
                   }
+                  .padding(.vertical, 4)
+                  .background(Color.gray.opacity(0.05))
+                  .cornerRadius(8)
+                  .animation(.easeInOut, value: expandedGoalId) // smooth expand/collapse
                }
             }
             .padding()
          }
-         .navigationDestination(for: Goal.self) { goal in
-             if let index = goals.firstIndex(where: { $0.id == goal.id }) {
-                 RecordProgressView(goal: $goals[index])
-             }
+         
+      }
+      .navigationDestination(for: Goal.self) { goal in
+         if let index = viewModel.goals.firstIndex(where: { $0.id == goal.id }) {
+            RecordProgressView(goal: $viewModel.goals[index])
          }
       }
    }
 }
-//      ScrollView {
-//         VStack(alignment: .leading, spacing: 12) {
-//            ForEach(goals) { goal in
-////               Button(goal.name) {
-////                  
-////               }
-//               Button(action: {show.toggle()},
-//                      label : {Text(goal.name)})
-//                  .font(.headline)
-//               if show {
-//                  Button("Record Progress") {
-//                     // Allows the user to record event.
-//                     // Go to different view?
-//                  }
-//                  Button("Edit Goal") {
-//                     // Allows the user to edit/delete the goal
-//                     // Different view? Probably.
-//                  }
-//                  Button("Show Past Progress") {
-//                     
-//                  }
-//                  Button("Delete Goal") {
-//                      do {
-//                          try deleteGoal(withId: goal.id)
-//                         goals.removeAll { $0.id == goal.id }
-//                      } catch {
-//                          print("Failed to delete goal:", error)
-//                      }
-//                  }
-//               }
-//            }
-//         }
-//         .padding()
-//         .background(Color.gray.opacity(0.1))
-//      }
+
+
+//struct ViewAllGoalsView_Previews: PreviewProvider {
+//   static var previews: some View {
+//      
+//      // Create a ViewModel with sample goals
+//      let viewModel = GoalViewModel()
+//      viewModel.goals = [
+//         Goal(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+//            name: "Read a book",
+//            action: "Read 20 pages",
+//            frequency: .day,
+//            progress: [],
+//            type: .binary
+//         ),
+//         Goal(id: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+//            name: "Poop",
+//            action: "Run 5 km",
+//            frequency: .week,
+//            progress: [],
+//            type: .quantitative(value: 5, unit: "km")
+//         ),
+//         Goal(id: UUID(uuidString: "00000000-0000-0000-0000-000000000003")!,
+//            name: "Make my bed",
+//            action: "Make my bed",
+//            frequency: .day,
+//            progress: [],
+//            type: .binary
+//         )
+//      ]
+//      
+//      // Inject the ViewModel into the environment
+//      return ViewAllGoalsView()
+//         .environmentObject(viewModel)
 //   }
 //}
 
-//func 
-
-struct ViewAllGoalsGoalView_PreviewWrapper: View {
-   // This is necessary because the #Preview
-   // would not allow the goals parameter,
-   // because it is out of scope. Or whatever.
-    @State private var goals: [Goal] = []
-
-    var body: some View {
-       ViewAllGoalsView(goals: $goals)
+struct ViewAllGoalsView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Use a wrapper view to hold a fresh ViewModel
+        ViewAllGoalsPreviewWrapper()
     }
 }
 
-func deleteGoal(withId id: UUID) throws {
-    var goals = try loadGoals()
-    
-    goals.removeAll { $0.id == id }
-    
-    try saveGoals(goals)
+struct ViewAllGoalsPreviewWrapper: View {
+    @StateObject private var viewModelTest = GoalViewModel()
+
+    init() {
+        viewModelTest.goals = [
+            Goal(id: UUID(), name: "Read a book", action: "Read 20 pages", frequency: .day, progress: [], type: .binary),
+            Goal(id: UUID(), name: "Poop", action: "Run 5 km", frequency: .week, progress: [], type: .quantitative(value: 5, unit: "km")),
+            Goal(id: UUID(), name: "Make my bed", action: "Make my bed", frequency: .day, progress: [], type: .binary)
+        ]
+    }
+
+    var body: some View {
+        ViewAllGoalsView()
+            .environmentObject(viewModelTest)
+            .previewLayout(.sizeThatFits)
+    }
 }
 
-#Preview {
-   ViewAllGoalsGoalView_PreviewWrapper()
-}
+//#Preview {
+//   // Wrap setup in a closure returning the view
+//   let viewModel = GoalViewModel()
+//   
+//   
+//   // Return the view
+//   ViewAllGoalsView()
+//      .environmentObject(viewModel)
+//}
