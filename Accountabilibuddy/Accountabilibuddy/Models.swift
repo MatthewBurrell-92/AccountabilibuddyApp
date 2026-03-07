@@ -12,6 +12,11 @@ enum GoalType: Codable, Hashable {
     case quantitative(value: Double, unit: String)
 }
 
+enum EmailProgress: Codable, Hashable {
+   case none
+   case email(emails: [String])
+}
+
 enum GoalUnitTime: String, Codable, CaseIterable {
    case day
    case week
@@ -35,6 +40,7 @@ struct Goal: Codable, Identifiable, Hashable {
    var frequency: GoalUnitTime
    var progress: [Progress]
    var type: GoalType
+   var sendEmail: EmailProgress
 }
 
 extension Goal {
@@ -47,4 +53,9 @@ extension Goal {
         guard case let .quantitative(value, _) = type else { return nil }
         return value
     }
+}
+
+enum GoalRoute: Hashable {
+    case recordProgress(UUID)
+    case editGoal(UUID)
 }

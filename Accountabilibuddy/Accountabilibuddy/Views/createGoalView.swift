@@ -113,7 +113,8 @@ struct createGoalView: View {
                            name: goalName,
                            action: goalAction,
                            frequency: goalFreq,
-                           type: .binary
+                           type: .binary,
+                           email: .none
                        )
 //                    goals.append(newGoal)
                    print("binary?")
@@ -184,7 +185,8 @@ struct createGoalView: View {
                            name: goalName,
                            action: goalAction,
                            frequency: goalFreq,
-                           type: goalType
+                           type: goalType,
+                           email: .none
                        )
                    print("here")
 

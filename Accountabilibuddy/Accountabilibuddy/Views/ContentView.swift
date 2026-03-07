@@ -12,33 +12,44 @@ struct ContentView: View {
 //   @State private var goals: [Goal] = []
    @StateObject private var viewModel = GoalViewModel()
    
-    var body: some View {
-       VStack{
-          NavigationStack
-          {
-             NavigationLink(destination: createGoalView()) {
-                Text("Create a new Goal")
-             }
-             NavigationLink(destination: ViewAllGoalsView()) {
-                Text("View All Goals")
-             }
-             NavigationLink(destination: ViewAllGoalsView()) {
-                Text("Record goal progress")
-             }
-             
-             
-//             .navigationTitle("Home")
-          }
-//          .onAppear {
-//              do {
-//                 viewModel.goals = try loadGoals()
-//              } catch {
-//                  goals = []
-//              }
-//          }
-       }
-    }
+   var body: some View {
+      
+      NavigationStack {
+         
+         VStack {
+            
+            NavigationLink(destination: createGoalView()) {
+               Text("Create a new Goal")
+            }
+            
+            NavigationLink(destination: ViewAllGoalsView()) {
+               Text("View All Goals")
+            }
+            
+            NavigationLink(destination: ViewAllGoalsView()) {
+               Text("Record goal progress")
+            }
+         }
+         
+         .navigationDestination(for: GoalRoute.self) { route in
+            switch route {
+               
+            case .recordProgress(let id):
+               if let index = viewModel.goals.firstIndex(where: { $0.id == id }) {
+                  RecordProgressView(goal: $viewModel.goals[index])
+               }
+               
+            case .editGoal(let id):
+               if let index = viewModel.goals.firstIndex(where: { $0.id == id }) {
+                  EditGoalView(goal: $viewModel.goals[index])
+               }
+            }
+         }
+      }
+      .environmentObject(viewModel)
+   }
 }
+
 
 struct GoalListView: View {
     @EnvironmentObject var viewModel: GoalViewModel
