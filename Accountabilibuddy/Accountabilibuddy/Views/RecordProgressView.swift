@@ -79,7 +79,7 @@ struct RecordProgressView: View {
                else{
                   Picker(unit, selection: $selectedDouble){
                      ForEach(1..<100) {number in
-                        Text("\(number)") .tag(number)
+                        Text("\(number)").tag(Double(number))
                      }
                   } .pickerStyle(.wheel)
                }
@@ -140,6 +140,7 @@ struct RecordProgressView: View {
                         date: dateValue,
                         value: Double(selectedNumber)
                      )
+                     print("Binary progress")
                      goal.progress.append(newProgress)
                      viewModel.recordProgress(newProgress: newProgress)
                   }
@@ -294,6 +295,7 @@ struct RecordProgressView_PreviewWrapper: View {
    
    @State private var goal = Goal(
       id: UUID(),
+      user: "Test",
       name: "Read BoM",
       action: "read",
       frequency: .week,

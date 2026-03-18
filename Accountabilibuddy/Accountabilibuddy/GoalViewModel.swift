@@ -38,7 +38,7 @@ class GoalViewModel: ObservableObject {
    
    // MARK: - Goal CRUD
    func addGoal(name: String, action: String, frequency: GoalUnitTime, type: GoalType, email: EmailProgress) {
-      let newGoal = Goal(name: name, action: action, frequency: frequency, progress: [], type: type, sendEmail: email)
+      let newGoal = Goal(user: "Test", name: name, action: action, frequency: frequency, progress: [], type: type, sendEmail: email)
       repository.addGoal(newGoal)
       fetchGoals()
       print(GoalType.self)
@@ -46,6 +46,10 @@ class GoalViewModel: ObservableObject {
    
    func removeGoal(id: UUID) {
       repository.removeGoal(withId: id)
+   }
+   
+   func updateGoal(goal : Goal) {
+      repository.updateGoal(goal)
    }
    
    //   func removeGoal(id: UUID) {
@@ -165,6 +169,18 @@ class GoalRepository {
    
    func removeGoal(withId id: UUID) {
       db.collection(collection).document(id.uuidString).delete()
+   }
+   
+   func updateGoal(_ goal: Goal) {
+      try? db.collection(collection)
+         .document(goal.id.uuidString)
+         .setData(from: goal) { error in
+            if let error = error {
+               print("Error updating goal in Firestore: \(error)")
+            } else {
+               print("Goal updated successfully: \(goal.name)")
+            }
+         }
    }
    
    func listenToGoals(completion: @escaping ([Goal]) -> Void) {

@@ -83,9 +83,9 @@ struct ViewAllGoalsPreviewWrapper: View {
          .environmentObject(viewModelTest)
          .onAppear {
             viewModelTest.goals = [
-               Goal(id: UUID(), name: "Read a book", action: "Read 20 pages", frequency: .day, progress: [], type: .binary, sendEmail: .none),
-               Goal(id: UUID(), name: "Poop", action: "Run 5 km", frequency: .week, progress: [], type: .quantitative(value: 5, unit: "km"), sendEmail: .none),
-               Goal(id: UUID(), name: "Make my bed", action: "Make my bed", frequency: .day, progress: [], type: .binary, sendEmail: .none)
+               Goal(id: UUID(), user: "Test", name: "Read a book", action: "Read 20 pages", frequency: .day, progress: [], type: .binary, sendEmail: .none),
+               Goal(id: UUID(), user: "Test", name: "Poop", action: "Run 5 km", frequency: .week, progress: [], type: .quantitative(value: 5, unit: "km"), sendEmail: .none),
+               Goal(id: UUID(), user: "Test", name: "Make my bed", action: "Make my bed", frequency: .day, progress: [], type: .binary, sendEmail: .none)
             ]
          }
          .previewLayout(.sizeThatFits)
