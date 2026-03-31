@@ -10,6 +10,7 @@ import AppIntents
 struct EditGoalView: View {
    @EnvironmentObject var viewModel: GoalViewModel
    @Binding var goal: Goal
+   @Binding var path: [GoalRoute]
    
    @State private var newEmail = ""
    
@@ -17,20 +18,20 @@ struct EditGoalView: View {
       Form {
          
          // MARK: Goal Name
-         Section("Goal") {
+         Section(header: Text("Goal")) {
             TextField("Goal name", text: $goal.name)
                .onChange(of: goal.name) { previousValue, newValue in
-                   updateGoal()
+                  updateGoal()
                }
             
             TextField("Action", text: $goal.action)
-                .onChange(of: goal.action) {
-                    updateGoal()
-                }
+               .onChange(of: goal.action) {
+                  updateGoal()
+               }
          }
          
          // MARK: Frequency
-         Section("Frequency") {
+         Section(header: Text("Frequency")) {
             
             Picker("Frequency", selection: $goal.frequency) {
                ForEach(GoalUnitTime.allCases, id: \.self) { freq in
@@ -40,12 +41,12 @@ struct EditGoalView: View {
             }
             .pickerStyle(.segmented)
             .onChange(of: goal.frequency) {
-                    updateGoal()
-                }
+               updateGoal()
+            }
          }
          
          // MARK: Goal Type
-         Section("Goal Type") {
+         Section(header: Text("Goal Type")) {
             
             Picker("Type", selection: goalTypeBinding) {
                Text("Binary").tag(GoalType.binary)
@@ -53,7 +54,7 @@ struct EditGoalView: View {
             }
             .onChange(of: goal.type) { updateGoal() }
             
-            if case .quantitative(let value, let unit) = goal.type {
+            if case .quantitative(_, _) = goal.type {
                
                HStack {
                   Text("Value")
@@ -64,34 +65,35 @@ struct EditGoalView: View {
                      format: .number
                   )
                   .keyboardType(.decimalPad)
-                  .onChange(of: value) { updateGoal() }
+                  //                  .onChange(of: value) { updateGoal() }
                }
                
                TextField(
                   "Unit (pages, miles, etc.)",
                   text: quantitativeUnitBinding
                )
-               .onChange(of: unit) { updateGoal() }
+               //               .onChange(of: unit) { updateGoal() }
             }
          }
          
          // MARK: Email Notifications
-         Section("Weekly Email Updates") {
+         Section(header: Text("Weekly Email Updates")) {
             
-            if case .emails(let emails) = goal.sendEmail {
-               
-               ForEach(emails, id: \.self) { email in
-                  HStack {
-                     Text(email)
-                     
-                     Spacer()
-                     
-                     Button(role: .destructive) {
-                        removeEmail(email)
-                     } label: {
-                        Image(systemName: "trash")
-                     }
+            //            if case .emails(let emails) = goal.sendEmail {
+            
+            ForEach(goal.sendEmail, id: \.self) { email in
+               HStack {
+                  Text(email)
+                  
+                  Spacer()
+                  
+                  Button(role: .destructive) {
+                     goal.removeEmail(email)
+                     updateGoal()
+                  } label: {
+                     Image(systemName: "trash")
                   }
+                  //                  }
                }
             }
             
@@ -102,7 +104,9 @@ struct EditGoalView: View {
                   .keyboardType(.emailAddress)
                
                Button("Add") {
-                  addEmail()
+                  goal.addEmail(newEmail)
+                  updateGoal()
+                  newEmail = ""
                }
                .disabled(newEmail.isEmpty)
             }
@@ -115,10 +119,11 @@ struct EditGoalView: View {
       }
       .navigationTitle("Edit Goal")
       .navigationBarItems(trailing: Button("Save") {
-          updateGoal()
+         updateGoal()
       })
    }
 }
+
 
 // MARK: - Goal Updates via ViewModel
 extension EditGoalView {
@@ -127,32 +132,32 @@ extension EditGoalView {
       viewModel.updateGoal(goal: goal)
    }
    
-   func addEmail() {
-      guard newEmail.contains("@") else { return }
-      
-      switch goal.sendEmail {
-      case .none:
-         goal.sendEmail = .emails(emails: [newEmail])
-      case .emails(var emails):
-         emails.append(newEmail)
-         goal.sendEmail = .emails(emails: emails)
-      }
-      
-      newEmail = ""
-      updateGoal()
-   }
-   
-   func removeEmail(_ email: String) {
-      if case .emails(var emails) = goal.sendEmail {
-         emails.removeAll { $0 == email }
-         goal.sendEmail = emails.isEmpty
-         ? .none
-         : .emails(emails: emails)
-         updateGoal()
-      }
-   }
+   //   func addEmail() {
+   //      guard newEmail.contains("@") else { return }
+   //
+   //      switch goal.sendEmail {
+   //      case .none:
+   //         goal.sendEmail = .emails(emails: [newEmail])
+   //      case .emails(var emails):
+   //         emails.append(newEmail)
+   //         goal.sendEmail = .emails(emails: emails)
+   //      }
+   //
+   //      newEmail = ""
+   //      updateGoal()
+   //   }
+   //
+   //   func removeEmail(_ email: String) {
+   //      if case .emails(var emails) = goal.sendEmail {
+   //         emails.removeAll { $0 == email }
+   //         goal.sendEmail = emails.isEmpty
+   //         ? .none
+   //         : .emails(emails: emails)
+   //         updateGoal()
+   //      }
+   //   }
 }
-
+//
 // MARK: - Bindings for Quantitative Type
 extension EditGoalView {
    
@@ -211,12 +216,13 @@ struct EditGoalView_PreviewWrapper: View {
       frequency: .week,
       progress: [],
       type: .quantitative(value: 15.0, unit: "pages"),
-      sendEmail: .none
+      sendEmail: [],
+      active: true
       //        type: .binary
    )
    
    var body: some View {
-      EditGoalView(goal: $goal)
+      EditGoalView(goal: $goal, path: .constant([]))
    }
 }
 

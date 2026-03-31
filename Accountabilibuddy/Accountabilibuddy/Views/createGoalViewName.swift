@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-struct createGoalView1: View {
+struct createGoalViewName: View {
    @State var goalName: String = ""
+   @Binding var path: [GoalRoute]
    
    var body: some View {
       VStack{
@@ -18,9 +19,8 @@ struct createGoalView1: View {
             .padding()
          
          if (goalName != "") {
-            NavigationLink(destination: createGoalView2(goalName: (goalName))) {
-               Text("Next")
-                  .padding(.vertical, 4)
+            Button("Next") {
+                path.append(.askRecurring(goalName: goalName))
             }
          }
       }
@@ -28,5 +28,8 @@ struct createGoalView1: View {
 }
 
 #Preview {
-   createGoalView1()
+   createGoalViewName(
+      goalName: "Test Non Binary Goal", path: .constant([])
+    )
+    .environmentObject(GoalViewModel())
 }

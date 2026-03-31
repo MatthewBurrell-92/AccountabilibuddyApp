@@ -21,16 +21,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct AccountabilibuddyApp: App {
    @StateObject var viewModel = GoalViewModel()
+   @StateObject var settings = UserSettings()
    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
    
-//   init() {
-//           FirebaseApp.configure()
-//       }
-
-       var body: some Scene {
-           WindowGroup {
-               ContentView()
-                   .environmentObject(viewModel)
-           }
-       }
+   //   init() {
+   //           FirebaseApp.configure()
+   //       }
+   
+   var body: some Scene {
+      WindowGroup {
+         if settings.username.isEmpty {
+            UsernameSetupView()
+               .environmentObject(settings)
+               .environmentObject(viewModel)
+         } else {
+            ContentView()
+               .environmentObject(settings)
+               .environmentObject(viewModel)
+         }
+      }
+   }
 }

@@ -37,7 +37,7 @@ class GoalViewModel: ObservableObject {
    }
    
    // MARK: - Goal CRUD
-   func addGoal(name: String, action: String, frequency: GoalUnitTime, type: GoalType, email: EmailProgress) {
+   func addGoal(name: String, action: String, frequency: GoalUnitTime, type: GoalType, email: [String]) {
       let newGoal = Goal(user: "Test", name: name, action: action, frequency: frequency, progress: [], type: type, sendEmail: email)
       repository.addGoal(newGoal)
       fetchGoals()
@@ -49,6 +49,7 @@ class GoalViewModel: ObservableObject {
    }
    
    func updateGoal(goal : Goal) {
+      print("hit update goal")
       repository.updateGoal(goal)
    }
    

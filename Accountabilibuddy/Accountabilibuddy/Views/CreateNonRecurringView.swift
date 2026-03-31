@@ -78,7 +78,7 @@ struct CreateNonRecurringView: View {
                action: goalAction,
                frequency: goalFreq,
                type: goalType,
-               email: .none
+               email: []
             )
             print("Recurring goal created")
             path = []

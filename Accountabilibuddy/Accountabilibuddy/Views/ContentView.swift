@@ -8,41 +8,65 @@
 import SwiftUI
 
 struct ContentView: View {
-//   @EnvironmentObject var viewModel: GoalViewModel
-//   @State private var goals: [Goal] = []
+   //   @EnvironmentObject var viewModel: GoalViewModel
+   //   @State private var goals: [Goal] = []
    @StateObject private var viewModel = GoalViewModel()
+   
+   @State private var path: [GoalRoute] = []
    
    var body: some View {
       
-      NavigationStack {
+      NavigationStack(path: $path) {
          
          VStack {
             
-            NavigationLink(destination: createGoalView()) {
-               Text("Create a new Goal")
+            //            NavigationLink(destination: createGoalViewName()) {
+            //               Text("Create a new Goal")
+            //            }
+            
+            Button("Create a new Goal") {
+                path.append(.nameInput)
             }
             
-            NavigationLink(destination: ViewAllGoalsView()) {
-               Text("View All Goals")
+            Button("View Your Goals") {
+               path.append(.viewAllGoals)
             }
             
-            NavigationLink(destination: ViewAllGoalsView()) {
-               Text("Record goal progress")
-            }
+//            NavigationLink(destination: ViewAllGoalsView(path)) {
+//               Text("View All Goals")
+//            }
+            
+//            NavigationLink(destination: ViewAllGoalsView()) {
+//               Text("Record goal progress")
+//            }
          }
          
          .navigationDestination(for: GoalRoute.self) { route in
             switch route {
                
+            case .viewAllGoals: ViewAllGoalsView(path: $path)
+               
             case .recordProgress(let id):
                if let index = viewModel.goals.firstIndex(where: { $0.id == id }) {
-                  RecordProgressView(goal: $viewModel.goals[index])
+                  RecordProgressView(goal: $viewModel.goals[index], path: $path)
                }
                
             case .editGoal(let id):
                if let index = viewModel.goals.firstIndex(where: { $0.id == id }) {
-                  EditGoalView(goal: $viewModel.goals[index])
+                  EditGoalView(goal: $viewModel.goals[index], path: $path)
                }
+            case .nameInput:
+               createGoalViewName(path: $path)
+            case .askRecurring(let goalName):
+               AskRecurringView(goalName: goalName, path: $path)
+            case .createNonRecurring(let goalName):
+               CreateNonRecurringView(goalName: goalName, path: $path)
+            case .askBinary(let goalName):
+               AskBinaryView(goalName: goalName, path: $path)
+            case .createNonBinary(let goalName):
+               CreateNonBinaryGoal(goalName: goalName, path: $path)
+            case .createBinary(let goalName):
+               CreateBinaryGoal(goalName: goalName, path: $path)
             }
          }
       }
@@ -52,13 +76,13 @@ struct ContentView: View {
 
 
 struct GoalListView: View {
-    @EnvironmentObject var viewModel: GoalViewModel
-
-    var body: some View {
-        List(viewModel.goals) { goal in
-           Text(goal.name)
-        }
-    }
+   @EnvironmentObject var viewModel: GoalViewModel
+   
+   var body: some View {
+      List(viewModel.goals) { goal in
+         Text(goal.name)
+      }
+   }
 }
 
 // String makes the cases in the enum strings,
@@ -89,7 +113,7 @@ struct GoalListView: View {
 //   var action: String
 //   var frequency: GoalUnitTime
 //   var progress: [Progress]
-//   
+//
 //   init(name: String, action: String, frequency: GoalUnitTime) {
 //      self.name = name
 //      self.action = action
@@ -99,13 +123,13 @@ struct GoalListView: View {
 //}
 //
 //class BinaryGoal : GoalClass{
-//   
+//
 //}
 //
 //class QuantitativeGoal : GoalClass{
 //   var value: Double
 //   var unit: String
-//   
+//
 //   init(value: Double, unit: String) {
 //      super.init(name: "", action: "", frequency: .day)
 //      self.value = value
@@ -127,6 +151,6 @@ struct GoalListView: View {
 //}
 
 #Preview {
-    ContentView()
+   ContentView()
 }
 

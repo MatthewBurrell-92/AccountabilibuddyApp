@@ -126,7 +126,7 @@ struct createGoalView: View {
                         action: goalAction,
                         frequency: goalFreq, // now serves as time unit
                         type: goalType,
-                        email: .none
+                        email: []
                     )
                 }
                 .buttonStyle(.borderedProminent)
@@ -206,7 +206,7 @@ struct createGoalView: View {
                         action: goalAction,
                         frequency: goalFreq,
                         type: .binary,
-                        email: .none
+                        email: []
                      )
                      print("binary?")
                      
@@ -269,7 +269,7 @@ struct createGoalView: View {
                         action: goalAction,
                         frequency: goalFreq,
                         type: goalType,
-                        email: .none
+                        email: []
                      )
                      print("here")
                      

@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct createGoalView2: View {
-   @State var goalName: String = ""
+struct AskRecurringView: View {
+   let goalName: String
    @State var showAlert: Bool = false
-   
+   @Binding var path: [GoalRoute]
+      
    var body: some View {
       VStack{
          Text(goalName)
@@ -28,22 +29,28 @@ struct createGoalView2: View {
                Text("A recurring goal is something that is completed everyday, week or month. A non-recurring goal is something that is completed only once over a specified period of time. An example of a non-recurring goal is to lose 20 pounds over six months.")
             }
          }
-
+         
          HStack {
-            NavigationLink(destination: createGoalView3(goalName: (goalName))) {
-               Text("Yes")
-                  .padding(.vertical, 4)
+            
+            Button("Yes") {
+                path.append(.askBinary(goalName: goalName))
             }
-            NavigationLink(destination: createGoalView3(goalName: (goalName))) {
-               Text("No")
-                  .padding(.vertical, 4)
+            
+            Button("No") {
+                path.append(.createNonRecurring(goalName: goalName))
+               print("NOOOOO")
             }
+            
+            
          }
       }
-      
    }
 }
 
+
 #Preview {
-   createGoalView2(goalName: "Test Goal")
+   AskRecurringView(
+      goalName: "Test Ask Recurring", path: .constant([])
+   )
+   .environmentObject(GoalViewModel())
 }
